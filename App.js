@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
   Pressable,
+  Alert,
 } from 'react-native';
 
 export default function App() {
@@ -62,37 +63,44 @@ export default function App() {
   
   //Validation chekcs
   if (fromAddress === '' || fromAddress === ' ' || fromAddress === '  ') {
-    setFromError('Shipping From address is required.');
+    setFromError('*Shipping From address is required.');
     hasError = true; //only print if input missing
   }
 
   if (toAddress === '' || toAddress === ' ' || toAddress === '  ') {
-    setToError('Shipping To address is required.');
+    setToError('*Shipping To address is required.');
     hasError = true;//only print if input missing
   }
 
   if (!parcelType) {
-    setTypeError('Please select a parcel type.');
+    setTypeError('*Please select a parcel type.');
     hasError = true;//only print if input missing
   }
 
   if (weight === '' || weight === ' ' || weight === '  ') {
-    setWeightError('Parcel weight is required.');
+    setWeightError('*Parcel weight is required.');
     hasError = true;
   } else if (parcelType === 'Package' && numericWeight > 44) {
-    setWeightError('Max allowed weight for Package is 44 lbs.');
+    setWeightError('*Max allowed weight for Package is 44 lbs.');
     hasError = true;
   } else if (parcelType === 'Letter/Document' && numericWeight > 1.1) {
-    setWeightError('Max allowed weight for Letter/Document is 1.1 lbs.');
+    setWeightError('*Max allowed weight for Letter/Document is 1.1 lbs.');
     hasError = true;
   }
 
   if (!dropDownValue) {
-    setRateError('Please choose a rate.');
+    setRateError('*Please choose a rate.');
     hasError = true;
   }
 
-  if (hasError) return;
+  if (hasError) {
+    Alert.alert(
+      "Form Incomplete",
+      "Please ensure all fields are correctly filled before proceeding.",
+      [{ text: "OK", style: "default" }]
+    );
+    return;
+  }
 
   // Determine additional charge for the signature option
   const addOnPrice = addOnSelected ? 2 : 0;
@@ -178,9 +186,9 @@ export default function App() {
       />
       {weightError ? <Text style={styles.errorText}>{weightError}</Text> : null}
 
-      {/* picker option dpeending on the parcel type */}
+      {/* picker option renders dpeending on the parcel type */}
       {parcelType ? (
-        <>
+        <View style={{ width: '100%' }}>
           <Text style={styles.label}>Choose Rate</Text>
           <Picker
             selectedValue={dropDownValue}
@@ -192,7 +200,6 @@ export default function App() {
             }}
           >
             <Picker.Item label="Select a rate..." value={null} />
-
             {rateData[parcelType].map((option, index) => (
               <Picker.Item key={index} label={option.label} value={option.label} />
             ))}
@@ -208,7 +215,7 @@ export default function App() {
             </View>
             <Text style={styles.radioLabel}>Signature Option (+$2)</Text>
           </TouchableOpacity>
-        </>
+        </View>
       ) : null}
 
     {/* Get rates button */}
